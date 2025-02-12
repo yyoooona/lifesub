@@ -1,0 +1,62 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.0' apply false
+    id 'io.spring.dependency-management' version '1.1.6' apply false
+    id 'java'
+}
+
+allprojects {
+    group = 'com.unicorn'
+    version = '1.0.0'
+    sourceCompatibility = '21'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    
+    repositories {
+        mavenCentral()
+    }
+    
+    dependencies {
+
+        implementation 'org.springframework.boot:spring-boot-starter'
+
+        // Lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        
+        // Test
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+    
+    test {
+        useJUnitPlatform()
+    }
+}
+
+//-- Biz와 common 모듈이 아닌 경우 인프라 관련 라이브러리 추가
+configure(subprojects.findAll { !it.name.endsWith('-biz') && it.name != 'common' }) {
+    dependencies {
+        // Spring Boot
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        // data
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        // JWT
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'com.auth0:java-jwt:4.4.0'           //JWT unitlity
+        implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+        // Swagger
+        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    }
+}
+
+//-- Biz와 common 모듈은 일반Jar만 생성하고 실행Jar는 생성되지 않게 함
+configure(subprojects.findAll { it.name.endsWith('-biz') || it.name == 'common' }) {
+    bootJar.enabled = false
+    jar.enabled = true
+}
