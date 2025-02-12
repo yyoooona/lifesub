@@ -4,6 +4,7 @@ import com.unicorn.lifesub.common.dto.ApiResponse;
 import com.unicorn.lifesub.recommend.dto.RecommendCategoryDTO;
 import com.unicorn.lifesub.recommend.service.RecommendService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "구독추천 API", description = "구독추천 관련 API")
 @RestController
+@SecurityRequirement(name = "bearerAuth")    //이 어노테이션이 없으면 요청 헤더에 Authorization헤더가 안 생김
 @RequestMapping("/api/recommend")
 @RequiredArgsConstructor
 public class RecommendController {

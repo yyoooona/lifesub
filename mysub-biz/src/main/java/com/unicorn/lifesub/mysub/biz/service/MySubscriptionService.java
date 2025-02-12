@@ -1,11 +1,13 @@
 package com.unicorn.lifesub.mysub.biz.service;
 
+import com.unicorn.lifesub.mysub.biz.domain.Category;
 import com.unicorn.lifesub.mysub.biz.domain.MySubscription;
-import com.unicorn.lifesub.mysub.biz.dto.MySubResponse;
-import com.unicorn.lifesub.mysub.biz.dto.TotalFeeResponse;
-import com.unicorn.lifesub.mysub.biz.usecase.in.MySubscriptionsUseCase;
-import com.unicorn.lifesub.mysub.biz.usecase.in.TotalFeeUseCase;
-import com.unicorn.lifesub.mysub.biz.usecase.out.MySubscriptionReader;
+import com.unicorn.lifesub.mysub.biz.domain.Subscription;
+import com.unicorn.lifesub.mysub.biz.dto.*;
+import com.unicorn.lifesub.mysub.biz.usecase.in.*;
+import com.unicorn.lifesub.mysub.biz.usecase.out.*;
+import com.unicorn.lifesub.common.exception.BusinessException;
+import com.unicorn.lifesub.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +17,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class MySubscriptionService implements TotalFeeUseCase, MySubscriptionsUseCase {
+public class MySubscriptionService implements
+        TotalFeeUseCase,
+        MySubscriptionsUseCase,
+        SubscriptionDetailUseCase,
+        SubscribeUseCase,
+        CancelSubscriptionUseCase,
+        CategoryUseCase {
+
     private final MySubscriptionReader mySubscriptionReader;
+    private final MySubscriptionWriter mySubscriptionWriter;
+    private final SubscriptionReader subscriptionReader;
 
     @Override
     @Transactional(readOnly = true)
@@ -43,9 +54,66 @@ public class MySubscriptionService implements TotalFeeUseCase, MySubscriptionsUs
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public SubDetailResponse getSubscriptionDetail(Long subscriptionId) {
+        Subscription subscription = subscriptionReader.findById(subscriptionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+
+        return SubDetailResponse.builder()
+                .serviceName(subscription.getName())
+                .logoUrl(subscription.getLogoUrl())
+                .category(subscription.getCategory())
+                .description(subscription.getDescription())
+                .price(subscription.getPrice())
+                .maxSharedUsers(subscription.getMaxSharedUsers())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void subscribe(Long subscriptionId, String userId) {
+        // 구독 서비스 존재 확인
+        subscriptionReader.findById(subscriptionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+
+        mySubscriptionWriter.save(userId, subscriptionId);
+    }
+
+    @Override
+    @Transactional
+    public void cancel(Long subscriptionId) {
+        mySubscriptionWriter.delete(subscriptionId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getAllCategories() {
+        return subscriptionReader.findAllCategories().stream()
+                .map(category -> CategoryResponse.builder()
+                        .categoryId(category.getCategoryId())
+                        .categoryName(category.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ServiceListResponse> getServicesByCategory(String categoryId) {
+        return subscriptionReader.findByCategory(categoryId).stream()
+                .map(subscription -> ServiceListResponse.builder()
+                        .serviceId(subscription.getId().toString())
+                        .serviceName(subscription.getName())
+                        .description(subscription.getDescription())
+                        .price(subscription.getPrice())
+                        .logoUrl(subscription.getLogoUrl())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     private String calculateFeeLevel(long totalFee) {
-        if (totalFee < 100000) return "구독을 좋아하는 사람";
-        if (totalFee < 200000) return "구독 수집자";
-        return "구독 사치왕";
+        if (totalFee < 100000) return FeeLevel.LIKFER.getFeeLevel();
+        if (totalFee < 200000) return FeeLevel.COLLECTOR.getFeeLevel();
+        return FeeLevel.ADDICT.getFeeLevel();
     }
 }

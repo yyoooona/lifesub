@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Algorithm algorithm;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret-key}") String secretKey) {
         this.algorithm = Algorithm.HMAC512(secretKey);
     }
 

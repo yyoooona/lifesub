@@ -16,7 +16,9 @@ import java.util.Map;
 public class LoggingAspect {
     private final Gson gson = new Gson();
 
-    @Pointcut("execution(* com.unicorn..*.*(..))")
+    //로깅 대상 패키지 지정. swagger관련 패키지는 제외함
+    @Pointcut("execution(* com.unicorn..*.*(..)) && " +
+            "!execution(* org.springdoc..*.*(..))")
     private void loggingPointcut() {}
 
     @Before("loggingPointcut()")

@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Builder
 public class RecommendCategoryDTO {
     private String categoryName;
-    private String imagePath;
     private LocalDate baseDate;
+    private String spendingCategory;
+    private Long totalSpending;
 }

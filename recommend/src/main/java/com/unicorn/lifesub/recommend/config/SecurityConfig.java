@@ -24,7 +24,7 @@ import java.util.List;
 public class SecurityConfig {
     protected final JwtTokenProvider jwtTokenProvider;
 
-    @Value("${allowedorigins}")
+    @Value("${allowed-origins}")
     private String allowedOrigins;
 
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {

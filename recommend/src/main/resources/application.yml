@@ -9,21 +9,27 @@ spring:
     username: ${POSTGRES_USER:admin}
     password: ${POSTGRES_PASSWORD:Passw0rd}
     driver-class-name: org.postgresql.Driver
+  # JPA 설정
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
-    show-sql: ${JPA_SHOW_SQL:false}
+    show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
-
-allowedorigins: ${ALLOWED_ORIGINS:*}
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 jwt:
-  secret: ${JWT_SECRET:8O2HQ13etL2BWZvYOiWsJ5uWFoLi6NBUG8divYVoCgtHVvlk3dqRksMl16toztDUeBTSIuOOPvHIrYq11G2BwQ==}
+  secret-key: ${JWT_SECRET_KEY:8O2HQ13etL2BWZvYOiWsJ5uWFoLi6NBUG8divYVoCgtHVvlk3dqRksMl16toztDUeBTSIuOOPvHIrYq11G2BwQ}
+
+allowed-origins: ${ALLOWED_ORIGINS:*}
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-  api-docs:
-    path: /api-docs
+
+logging:
+  level:
+    com.unicorn: DEBUG
+    org.hibernate.SQL: TRACE
+

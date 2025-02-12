@@ -6,6 +6,7 @@ import com.unicorn.lifesub.mysub.biz.dto.TotalFeeResponse;
 import com.unicorn.lifesub.mysub.biz.usecase.in.MySubscriptionsUseCase;
 import com.unicorn.lifesub.mysub.biz.usecase.in.TotalFeeUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Tag(name = "마이구독 API", description = "마이구독 관련 API")
 @RestController
+@SecurityRequirement(name = "bearerAuth")    //이 어노테이션이 없으면 요청 헤더에 Authorization헤더가 안 생김
 @RequestMapping("/api/mysub")
 @RequiredArgsConstructor
 public class MySubController {
