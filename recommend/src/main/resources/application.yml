@@ -6,18 +6,21 @@ spring:
     name: recommend-service
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:recommend}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:Passw0rd}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:validate}
+      ddl-auto: ${JPA_DDL_AUTO:update}
     show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
 
 allowedorigins: ${ALLOWED_ORIGINS:*}
+
+jwt:
+  secret: ${JWT_SECRET:8O2HQ13etL2BWZvYOiWsJ5uWFoLi6NBUG8divYVoCgtHVvlk3dqRksMl16toztDUeBTSIuOOPvHIrYq11G2BwQ==}
 
 springdoc:
   swagger-ui:
