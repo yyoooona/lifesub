@@ -1,0 +1,260 @@
+!theme mono
+title MySubscription Service - Clean Architecture Class Diagram
+
+' BIZ Layer
+package "com.unicorn.lifesub.mysub.biz" {
+    package "usecase" {
+        package "in" {
+            interface TotalFeeUseCase {
+                +getTotalFee(userId: String): TotalFeeResponse
+            }
+
+            interface MySubscriptionsUseCase {
+                +getMySubscriptions(userId: String): List<MySubResponse>
+            }
+
+            interface SubscriptionDetailUseCase {
+                +getSubscriptionDetail(subscriptionId: Long): SubDetailResponse
+            }
+
+            interface SubscribeUseCase {
+                +subscribe(subscriptionId: Long, userId: String): void
+            }
+
+            interface CancelSubscriptionUseCase {
+                +cancel(subscriptionId: Long): void
+            }
+
+            interface CategoryUseCase {
+                +getAllCategories(): List<CategoryResponse>
+                +getServicesByCategory(categoryId: String): List<ServiceListResponse>
+            }
+        }
+
+        package "out" {
+            interface MySubscriptionReader {
+                +findByUserId(userId: String): List<MySubscription>
+                +findById(id: Long): Optional<MySubscription>
+            }
+
+            interface MySubscriptionWriter {
+                +save(userId: String, subscriptionId: Long): MySubscription
+                +delete(id: Long): void
+            }
+
+            interface SubscriptionReader {
+                +findById(id: Long): Optional<Subscription>
+                +findByCategory(category: String): List<Subscription>
+                +findAllCategories(): List<Category>
+            }
+        }
+    }
+
+    package "domain" {
+        class MySubscription {
+            -id: Long
+            -userId: String
+            -subscription: Subscription
+            +getPrice(): int
+        }
+
+        class Subscription {
+            -id: Long
+            -name: String
+            -description: String
+            -category: String
+            -price: int
+            -maxSharedUsers: int
+            -logoUrl: String
+        }
+
+        class Category {
+            -categoryId: String
+            -name: String
+        }
+    }
+
+    package "service" {
+        class MySubscriptionService {
+            -mySubscriptionReader: MySubscriptionReader
+            -mySubscriptionWriter: MySubscriptionWriter
+            -subscriptionReader: SubscriptionReader
+            -collectorThreshold: long
+            -addictThreshold: long
+            +getTotalFee(userId: String): TotalFeeResponse
+            +getMySubscriptions(userId: String): List<MySubResponse>
+            +getSubscriptionDetail(subscriptionId: Long): SubDetailResponse
+            +subscribe(subscriptionId: Long, userId: String): void
+            +cancel(subscriptionId: Long): void
+            +getAllCategories(): List<CategoryResponse>
+            +getServicesByCategory(categoryId: String): List<ServiceListResponse>
+            -calculateFeeLevel(totalFee: long): String
+        }
+
+        enum FeeLevel {
+            LIKFER
+            COLLECTOR
+            ADDICT
+        }
+    }
+
+    package "dto" {
+        class TotalFeeResponse {
+            -totalFee: Long
+            -feeLevel: String
+        }
+
+        class MySubResponse {
+            -id: Long
+            -serviceName: String
+            -logoUrl: String
+        }
+
+        class SubDetailResponse {
+            -serviceName: String
+            -logoUrl: String
+            -category: String
+            -description: String
+            -price: int
+            -maxSharedUsers: int
+        }
+
+        class CategoryResponse {
+            -categoryId: String
+            -categoryName: String
+        }
+
+        class ServiceListResponse {
+            -serviceId: String
+            -serviceName: String
+            -description: String
+            -price: int
+            -logoUrl: String
+        }
+    }
+}
+
+' INFRA Layer
+package "com.unicorn.lifesub.mysub.infra" {
+    package "controller" {
+        class MySubController {
+            -totalFeeUseCase: TotalFeeUseCase
+            -mySubscriptionsUseCase: MySubscriptionsUseCase
+            +getTotalFee(userId: String): ResponseEntity<ApiResponse<TotalFeeResponse>>
+            +getMySubscriptions(userId: String): ResponseEntity<ApiResponse<List<MySubResponse>>>
+        }
+
+        class ServiceController {
+            -subscriptionDetailUseCase: SubscriptionDetailUseCase
+            -subscribeUseCase: SubscribeUseCase
+            -cancelSubscriptionUseCase: CancelSubscriptionUseCase
+            +getSubscriptionDetail(subscriptionId: Long): ResponseEntity<ApiResponse<SubDetailResponse>>
+            +subscribe(subscriptionId: Long, userId: String): ResponseEntity<ApiResponse<Void>>
+            +cancel(subscriptionId: Long): ResponseEntity<ApiResponse<Void>>
+        }
+
+        class CategoryController {
+            -categoryUseCase: CategoryUseCase
+            +getAllCategories(): ResponseEntity<ApiResponse<List<CategoryResponse>>>
+            +getServicesByCategory(categoryId: String): ResponseEntity<ApiResponse<List<ServiceListResponse>>>
+        }
+    }
+
+    package "gateway" {
+        class MySubscriptionGateway implements MySubscriptionReader, MySubscriptionWriter {
+            -mySubscriptionRepository: MySubscriptionJpaRepository
+            -subscriptionRepository: SubscriptionJpaRepository
+        }
+
+        class SubscriptionGateway implements SubscriptionReader {
+            -subscriptionRepository: SubscriptionJpaRepository
+            -categoryRepository: CategoryJpaRepository
+        }
+
+        package "repository" {
+            interface MySubscriptionJpaRepository {
+                +findByUserId(userId: String): List<MySubscriptionEntity>
+                +findBySubscription_Id(subscriptionId: Long): Optional<MySubscriptionEntity>
+            }
+
+            interface SubscriptionJpaRepository {
+                +findById(id: Long): Optional<SubscriptionEntity>
+                +findByCategory(category: String): List<SubscriptionEntity>
+            }
+
+            interface CategoryJpaRepository {
+                +findAll(): List<CategoryEntity>
+            }
+        }
+
+        package "entity" {
+            class MySubscriptionEntity {
+                -id: Long
+                -userId: String
+                -subscription: SubscriptionEntity
+                +toDomain(): MySubscription
+            }
+
+            class SubscriptionEntity {
+                -id: Long
+                -name: String
+                -description: String
+                -category: String
+                -price: int
+                -maxSharedUsers: int
+                -logoUrl: String
+                +toDomain(): Subscription
+            }
+
+            class CategoryEntity {
+                -categoryId: String
+                -name: String
+                +toDomain(): Category
+            }
+        }
+    }
+
+    package "config" {
+        class SecurityConfig {
+            -jwtTokenProvider: JwtTokenProvider
+            +securityFilterChain(http: HttpSecurity): SecurityFilterChain
+            +corsConfigurationSource(): CorsConfigurationSource
+        }
+
+        class SwaggerConfig {
+            +openAPI(): OpenAPI
+        }
+
+        class DataLoader {
+            -categoryRepository: CategoryJpaRepository
+            -subscriptionRepository: SubscriptionJpaRepository
+            +run(): void
+        }
+    }
+}
+
+' Relationships
+MySubscriptionService ..|> TotalFeeUseCase
+MySubscriptionService ..|> MySubscriptionsUseCase
+MySubscriptionService ..|> SubscriptionDetailUseCase
+MySubscriptionService ..|> SubscribeUseCase
+MySubscriptionService ..|> CancelSubscriptionUseCase
+MySubscriptionService ..|> CategoryUseCase
+
+MySubController --> TotalFeeUseCase
+MySubController --> MySubscriptionsUseCase
+ServiceController --> SubscriptionDetailUseCase
+ServiceController --> SubscribeUseCase
+ServiceController --> CancelSubscriptionUseCase
+CategoryController --> CategoryUseCase
+
+MySubscriptionGateway --> MySubscriptionJpaRepository
+MySubscriptionGateway --> SubscriptionJpaRepository
+SubscriptionGateway --> SubscriptionJpaRepository
+SubscriptionGateway --> CategoryJpaRepository
+
+MySubscriptionEntity ..> MySubscription : converts to
+SubscriptionEntity ..> Subscription : converts to
+CategoryEntity ..> Category : converts to
+
+MySubscription --> Subscription

@@ -1,0 +1,81 @@
+!theme mono
+title Recommendation Service - Class Diagram
+
+package "com.unicorn.lifesub.recommend" {
+    package "domain" {
+        class SpendingCategory {
+            -category: String
+            -totalAmount: Long
+        }
+
+        class RecommendedCategory {
+            -spendingCategory: String
+            -recommendCategory: String
+            -baseDate: LocalDate
+        }
+    }
+
+    package "service" {
+        interface RecommendService {
+            +getRecommendedCategory(userId: String): RecommendCategoryDTO
+        }
+
+        class RecommendServiceImpl {
+            -recommendRepository: RecommendRepository
+            -spendingRepository: SpendingRepository
+            -spendingAnalyzer: SpendingAnalyzer
+            +getRecommendedCategory(userId: String): RecommendCategoryDTO
+        }
+
+        class SpendingAnalyzer {
+            +analyzeSpending(spendings: List<SpendingEntity>): SpendingCategory
+            -calculateTotalByCategory(spendings: List<SpendingEntity>): Map<String, Long>
+            -findTopCategory(totals: Map<String, Long>): SpendingCategory
+        }
+    }
+
+    package "controller" {
+        class RecommendController {
+            -recommendService: RecommendService
+            +getRecommendedCategory(userId: String): ResponseEntity<ApiResponse<RecommendCategoryDTO>>
+        }
+    }
+
+    package "dto" {
+        class RecommendCategoryDTO {
+            -categoryName: String
+            -baseDate: LocalDate
+            -spendingCategory: String
+            -totalSpending: Long
+        }
+    }
+
+    package "repository" {
+        package "jpa" {
+            interface SpendingRepository {
+                +findSpendingsByUserIdAndDateAfter(userId: String, startDate: LocalDate): List<SpendingEntity>
+            }
+
+            interface RecommendRepository {
+                +findBySpendingCategory(category: String): Optional<RecommendedCategoryEntity>
+            }
+        }
+
+        package "entity" {
+            class SpendingEntity {
+                -id: Long
+                -userId: String
+                -category: String
+                -amount: Long
+                -spendingDate: LocalDate
+            }
+
+            class RecommendedCategoryEntity {
+                -id: Long
+                -spendingCategory: String
+                -recommendCategory: String
+                +toDomain(): RecommendedCategory
+            }
+        }
+    }
+}

@@ -1,0 +1,72 @@
+!theme mono
+title 회원 서비스 - 내부 시퀀스 다이어그램
+
+actor Client
+participant "회원 컨트롤러\n(MemberController)" as Controller
+participant "회원 서비스\n(MemberService)" as Service
+participant "JWT 토큰 제공자\n(JwtTokenProvider)" as TokenProvider
+participant "비밀번호 인코더\n(PasswordEncoder)" as PwEncoder
+database "회원 DB" as DB
+
+' 로그인 flow
+Client -> Controller: POST /api/auth/login\n[로그인]
+activate Controller
+
+Controller -> Service: login(LoginRequest)
+activate Service
+
+Service -> DB: findByUserId(userId)
+activate DB
+DB --> Service: Member
+deactivate DB
+
+Service -> PwEncoder: matches(rawPassword, encodedPassword)
+activate PwEncoder
+PwEncoder --> Service: matched result
+deactivate PwEncoder
+
+alt 인증 성공
+    Service -> TokenProvider: createToken(member)
+    activate TokenProvider
+    TokenProvider --> Service: access/refresh tokens
+    deactivate TokenProvider
+
+    Service --> Controller: TokenResponse
+else 인증 실패
+    Service --> Controller: throw InvalidCredentialsException
+end
+
+Controller --> Client: HTTP Response\n(tokens or error)
+deactivate Service
+deactivate Controller
+
+' 로그아웃 flow
+Client -> Controller: POST /api/auth/logout\n[로그아웃]
+activate Controller
+
+Controller -> Service: logout(LogoutRequest)
+activate Service
+
+Service --> Controller: LogoutResponse
+Controller --> Client: HTTP Response\n(success message)
+
+deactivate Service
+deactivate Controller
+
+note right of Controller
+  1. 요청 유효성 검증
+  2. 서비스 계층 호출
+  3. 응답 변환 및 반환
+end note
+
+note right of Service
+  1. 비즈니스 로직 처리
+  2. 사용자 인증
+  3. 토큰 관리
+end note
+
+note right of TokenProvider
+  1. JWT 토큰 생성
+  2. 토큰 검증
+  3. 토큰 무효화
+end note

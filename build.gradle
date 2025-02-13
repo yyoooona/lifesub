@@ -1,6 +1,6 @@
 plugins {
     id 'org.springframework.boot' version '3.4.0' apply false
-    id 'io.spring.dependency-management' version '1.1.6' apply false
+    //id 'io.spring.dependency-management' version '1.1.6' apply false
     id 'java'
 }
 
@@ -50,6 +50,8 @@ configure(subprojects.findAll { !it.name.endsWith('-biz') && it.name != 'common'
         implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
         runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
         runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+        // AOP: 로깅 처리 자동화를 위해 사용
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
         // Swagger
         implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
     }

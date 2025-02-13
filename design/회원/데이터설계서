@@ -1,0 +1,17 @@
+!theme mono
+title Member Service - 데이터 모델
+
+entity "Members" as members {
+    * userId: varchar(50) <<PK>>
+    --
+    userName: varchar(100)
+    password: varchar(255)
+    roles: varchar(255)
+    createdAt: timestamp
+    updatedAt: timestamp
+}
+
+note right of members
+  roles는 ARRAY 또는 JSON 타입으로
+  ['USER', 'ADMIN'] 형태로 저장
+end note

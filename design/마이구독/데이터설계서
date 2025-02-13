@@ -1,0 +1,52 @@
+!theme mono
+title MySubscription Service - 데이터 모델
+
+' Style configurations
+skinparam linetype ortho
+hide circle
+
+entity "My_Subscriptions" as my_subs {
+  * id: bigint <<PK>>
+  --
+  userId: varchar(50)
+  subscriptionId: bigint <<FK>>
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+
+entity "Subscriptions" as subs {
+  * id: bigint <<PK>>
+  --
+  name: varchar(100)
+  description: text
+  category: varchar(50)
+  price: decimal(15,2)
+  maxSharedUsers: integer
+  logoUrl: varchar(255)
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+
+entity "Categories" as categories {
+  * categoryId: varchar(50) <<PK>>
+  --
+  name: varchar(100)
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+
+' Relationships
+my_subs }o--|| subs : subscriptionId
+subs }o--|| categories : category-categoryId
+
+note right of my_subs
+  사용자별 구독 정보 관리
+end note
+
+note right of subs
+  구독 서비스 정보 관리
+end note
+
+note right of categories
+  구독 카테고리 관리
+end note

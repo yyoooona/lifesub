@@ -1,0 +1,74 @@
+!theme mono
+title ResourceGroup - 물리아키텍처
+
+' Azure Resource Group
+rectangle "ResourceGroup" {
+    ' Virtual Network
+    rectangle "VirtualNetwork" {
+        ' AKS Cluster
+        rectangle "AKSCluster" {
+            rectangle "SystemNodePool" {
+                [IngressController] as ingress
+            }
+
+            rectangle "UserNodePool" {
+                rectangle "MemberServicePod" {
+                    [회원서비스] as memberservice
+                }
+
+                rectangle "MySubscriptionServicePod" {
+                    [마이구독서비스] as mysubservice
+                }
+
+                rectangle "RecommendServicePod" {
+                    [구독추천서비스] as recommendservice
+                }
+            }
+        }
+    }
+
+    ' Managed Databases
+    database "AzureDatabasePostgreSQL" {
+        database "MemberDB" as memberdb {
+            [Members]
+        }
+
+        database "MySubscriptionDB" as mysubdb {
+            [MySubscriptions]
+            [Subscriptions]
+            [Categories]
+        }
+
+        database "RecommendDB" as recommenddb {
+            [SpendingHistory]
+            [RecommendedCategories]
+        }
+    }
+}
+
+' External Actors
+actor "Client" as client
+actor "Developer" as developer
+
+' Network Flow
+client --> ingress
+ingress --> memberservice
+ingress --> mysubservice
+ingress --> recommendservice
+
+' Database Connections
+memberservice --> memberdb
+mysubservice --> mysubdb
+recommendservice --> recommenddb
+
+' Development Access
+developer --> ingress : "kubectl"
+
+' Legend
+legend right
+| Component | Description |
+|---|---|
+| Infrastructure | AKSCluster |
+| Services | Member, MySubscription, Recommend |
+| Databases | PostgreSQL(Member, MySubscription, Recommend) |
+endlegend

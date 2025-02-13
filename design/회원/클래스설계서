@@ -1,0 +1,89 @@
+!theme mono
+title Member Service - Class Diagram
+
+package "com.unicorn.lifesub.member" {
+    package "domain" {
+        class Member {
+            -userId: String
+            -userName: String
+            -password: String
+            -roles: Set<String>
+            +Member(userId: String, userName: String, password: String, roles: Set<String>)
+        }
+    }
+
+    package "service" {
+        interface MemberService {
+            +login(request: LoginRequest): JwtTokenDTO
+            +logout(request: LogoutRequest): LogoutResponse
+        }
+
+        class MemberServiceImpl {
+            -memberRepository: MemberRepository
+            -passwordEncoder: PasswordEncoder
+            -jwtTokenProvider: JwtTokenProvider
+            +login(request: LoginRequest): JwtTokenDTO
+            +logout(request: LogoutRequest): LogoutResponse
+        }
+    }
+
+    package "controller" {
+        class MemberController {
+            -memberService: MemberService
+            +login(request: LoginRequest): ResponseEntity<ApiResponse<JwtTokenDTO>>
+            +logout(request: LogoutRequest): ResponseEntity<ApiResponse<LogoutResponse>>
+        }
+    }
+
+    package "dto" {
+        class LoginRequest {
+            -userId: String
+            -password: String
+        }
+
+        class LogoutRequest {
+            -userId: String
+        }
+
+        class LogoutResponse {
+            -message: String
+        }
+    }
+
+    package "repository" {
+        package "jpa" {
+            interface MemberRepository {
+                +findByUserId(userId: String): Optional<MemberEntity>
+            }
+        }
+
+        package "entity" {
+            class MemberEntity {
+                -userId: String
+                -userName: String
+                -password: String
+                -roles: Set<String>
+                +toDomain(): Member
+                +fromDomain(member: Member): MemberEntity
+            }
+        }
+    }
+
+    package "config" {
+        class SecurityConfig {
+            -jwtTokenProvider: JwtTokenProvider
+            +securityFilterChain(http: HttpSecurity): SecurityFilterChain
+            +corsConfigurationSource(): CorsConfigurationSource
+            +passwordEncoder(): PasswordEncoder
+        }
+
+        class JwtTokenProvider {
+            -algorithm: Algorithm
+            -accessTokenValidityInMilliseconds: long
+            -refreshTokenValidityInMilliseconds: long
+            +createToken(member: MemberEntity): JwtTokenDTO
+            +validateToken(token: String): boolean
+            +getAuthentication(token: String): Authentication
+        }
+    }
+}

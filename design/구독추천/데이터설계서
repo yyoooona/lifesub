@@ -1,0 +1,37 @@
+!theme mono
+title Recommendation Service - 데이터 모델
+
+' Style configurations
+skinparam linetype ortho
+hide circle
+
+entity "Spending_History" as spending {
+  * id: bigint <<PK>>
+  --
+  userId: varchar(50)
+  category: varchar(50)
+  amount: decimal(15,2)
+  spendingDate: date
+  createdAt: timestamp
+}
+
+entity "Recommended_Categories" as recommend {
+  * id: bigint <<PK>>
+  --
+  spendingCategory: varchar(50)
+  recommendCategory: varchar(50)
+  createdAt: timestamp
+}
+
+note right of spending
+  사용자별 지출 이력 관리
+  - 금액
+  - 카테고리
+  - 지출일자
+end note
+
+note right of recommend
+  지출-구독 카테고리 매핑
+  - 지출 카테고리
+  - 추천 구독 카테고리
+end note

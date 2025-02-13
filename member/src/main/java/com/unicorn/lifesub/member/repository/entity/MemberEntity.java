@@ -13,12 +13,16 @@ import java.util.Set;
 @Entity
 @Table(name = "members")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor  //JPA는 인자없는 기본 생성자를 대부분 요구하기 때문에 필요
 public class MemberEntity extends BaseTimeEntity {
-    @Id
+    @Id     ////PK(primary key)필드로 지정
+    @Column(name = "user_id", unique = true, nullable = false)  //테이블 스키마 생성 시 필드명, 유일값
     private String userId;
-    
+
+    @Column(nullable = false)
     private String userName;
+
+    @Column(nullable = false)
     private String password;
     
     @ElementCollection(fetch = FetchType.EAGER)

@@ -1,0 +1,18 @@
+서비스명|구독추천
+마이크로서비스 이름|SubRecommend
+유저스토리 ID|RSS-005
+유저스토리 제목|추천 구독 카테고리
+Controller 이름|RecommendController
+API 목적|사용자의 지출 패턴을 분석하여 추천 구독 카테고리 제공
+API Method|GET
+API 그룹 Path|/api/recommend
+API Path|/categories
+Path <변수유형> <변수명>|
+Query Key|userId
+Query <변수유형> <변수명>|String userId
+Request DTO 이름|
+Request DTO 배열 여부|
+Request DTO 구조|
+Response DTO 이름|RecommendCategoryDTO
+Response DTO 배열 여부|No
+Response DTO 구조|String categoryName; LocalDate baseDate; String spendingCategory; Long totalSpending

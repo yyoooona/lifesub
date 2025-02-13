@@ -1,0 +1,18 @@
+서비스명|회원|회원
+마이크로서비스 이름|Member|Member
+유저스토리 ID|USR-005|USR-015
+유저스토리 제목|로그인|로그아웃
+Controller 이름|MemberController|MemberController
+API 목적|사용자 로그인|로그아웃
+API Method|POST|POST
+API 그룹 Path|/api/auth|/api/auth
+API Path|/login|/logout
+Path <변수유형> <변수명>||
+Query Key||
+Query <변수유형> <변수명>||
+Request DTO 이름|LoginRequest|LogoutRequest
+Request DTO 배열 여부|No|No
+Request DTO 구조|String userId; String password|String userId
+Response DTO 이름|JwtTokenDTO|LogoutResponse
+Response DTO 배열 여부|No|No
+Response DTO 구조|String accessToken; String refreshToken|String message

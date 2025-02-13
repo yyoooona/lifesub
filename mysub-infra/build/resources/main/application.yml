@@ -19,6 +19,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+# Secret key 만들기: openssl rand -base64 32
 jwt:
   secret-key: ${JWT_SECRET_KEY:8O2HQ13etL2BWZvYOiWsJ5uWFoLi6NBUG8divYVoCgtHVvlk3dqRksMl16toztDUeBTSIuOOPvHIrYq11G2BwQ}
 

@@ -1,0 +1,101 @@
+!theme mono
+title 마이구독 서비스 - 내부 시퀀스 다이어그램
+
+actor Client
+participant "마이구독 컨트롤러\n(MySubController)" as MySubController
+participant "서비스 컨트롤러\n(ServiceController)" as ServiceController
+participant "카테고리 컨트롤러\n(CategoryController)" as CategoryController
+participant "마이구독 서비스\n(MySubService)" as Service
+database "마이구독 DB" as MySubDB
+database "구독서비스 DB" as SubServiceDB
+
+' 총 구독료 조회
+Client -> MySubController: GET /api/mysub/total-fee\n[총 구독료 조회]
+activate MySubController
+MySubController -> Service: getTotalFee(userId)
+activate Service
+Service -> MySubDB: findMySubscriptions(userId)
+MySubDB --> Service: List<MySubscription>
+Service -> SubServiceDB: findSubscriptionsByIds(subIds)
+SubServiceDB --> Service: List<Subscription>
+Service --> MySubController: TotalFeeResponse
+MySubController --> Client: HTTP Response\n(total fee, level)
+deactivate Service
+deactivate MySubController
+
+' 나의 구독 목록 조회
+Client -> MySubController: GET /api/mysub/list\n[구독 목록 조회]
+activate MySubController
+MySubController -> Service: getMySubscriptions(userId)
+activate Service
+Service -> MySubDB: findMySubscriptions(userId)
+MySubDB --> Service: List<MySubscription>
+Service --> MySubController: List<MySubResponse>
+MySubController --> Client: HTTP Response\n(subscription list)
+deactivate Service
+deactivate MySubController
+
+' 구독 상세 조회
+Client -> ServiceController: GET /api/mysub/services/{subscriptionId}\n[구독 상세 조회]
+activate ServiceController
+ServiceController -> Service: getSubscriptionDetail(subscriptionId)
+activate Service
+Service -> SubServiceDB: findById(subscriptionId)
+SubServiceDB --> Service: Subscription
+Service --> ServiceController: SubDetailResponse
+ServiceController --> Client: HTTP Response\n(subscription detail)
+deactivate Service
+deactivate ServiceController
+
+' 구독 신청
+Client -> ServiceController: POST /api/mysub/services/{subscriptionId}/subscribe\n[구독 신청]
+activate ServiceController
+ServiceController -> Service: subscribe(subscriptionId, userId)
+activate Service
+Service -> SubServiceDB: findById(subscriptionId)
+Service -> MySubDB: save(mySubscription)
+Service --> ServiceController: void
+ServiceController --> Client: HTTP Response\n(success)
+deactivate Service
+deactivate ServiceController
+
+' 구독 취소
+Client -> ServiceController: DELETE /api/mysub/services/{subscriptionId}\n[구독 취소]
+activate ServiceController
+ServiceController -> Service: cancel(subscriptionId)
+activate Service
+Service -> MySubDB: delete(subscriptionId)
+Service --> ServiceController: void
+ServiceController --> Client: HTTP Response\n(success)
+deactivate Service
+deactivate ServiceController
+
+' 카테고리 목록 조회
+Client -> CategoryController: GET /api/mysub/categories\n[카테고리 목록 조회]
+activate CategoryController
+CategoryController -> Service: getAllCategories()
+activate Service
+Service -> SubServiceDB: findAllCategories()
+SubServiceDB --> Service: List<Category>
+Service --> CategoryController: List<CategoryResponse>
+CategoryController --> Client: HTTP Response\n(category list)
+deactivate Service
+deactivate CategoryController
+
+' 카테고리별 서비스 목록 조회
+Client -> CategoryController: GET /api/mysub/services\n[카테고리별 서비스 목록 조회]
+activate CategoryController
+CategoryController -> Service: getServicesByCategory(categoryId)
+activate Service
+Service -> SubServiceDB: findByCategory(categoryId)
+SubServiceDB --> Service: List<Subscription>
+Service --> CategoryController: List<ServiceListResponse>
+CategoryController --> Client: HTTP Response\n(service list)
+deactivate Service
+deactivate CategoryController
+
+note right of Service
+  1. 비즈니스 로직 처리
+  2. 구독 관리
+  3. 카테고리 관리
+end note

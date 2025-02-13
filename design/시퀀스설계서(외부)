@@ -1,0 +1,42 @@
+!theme mono
+title 구독관리 서비스 - 외부 시퀀스 다이어그램
+
+actor Client
+participant "회원 서비스" as MemberService
+participant "마이구독 서비스" as MySubService
+participant "구독추천 서비스" as RecommendService
+
+' 회원 서비스 호출
+Client -> MemberService: POST /api/auth/login\n[로그인]
+Client -> MemberService: POST /api/auth/logout\n[로그아웃]
+
+' 마이구독 서비스 호출
+Client -> MySubService: GET /api/mysub/total-fee\n[총 구독료 조회]
+Client -> MySubService: GET /api/mysub/list\n[구독 목록 조회]
+Client -> MySubService: GET /api/mysub/categories\n[전체 카테고리 목록 조회]
+Client -> MySubService: GET /api/mysub/services\n[카테고리별 서비스 목록 조회]
+Client -> MySubService: GET /api/mysub/services/{subscriptionId}\n[구독 상세 조회]
+Client -> MySubService: POST /api/mysub/services/{subscriptionId}/subscribe\n[구독 신청]
+Client -> MySubService: DELETE /api/mysub/services/{subscriptionId}\n[구독 취소]
+
+' 구독추천 서비스 호출
+Client -> RecommendService: GET /api/recommend/categories\n[지출 기반 추천 카테고리 조회]
+
+note right of MemberService
+  인증/인가 처리
+  - JWT 기반 토큰 인증
+  - Role 기반 권한 관리
+end note
+
+note right of MySubService
+  구독 서비스 관리
+  - 구독 정보 관리
+  - 카테고리별 서비스 제공
+  - 구독료 계산
+end note
+
+note right of RecommendService
+  지출 분석 기반 추천
+  - 사용자별 지출 패턴 분석
+  - 최적 구독 카테고리 추천
+end note

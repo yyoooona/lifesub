@@ -1,0 +1,54 @@
+!theme mono
+title 구독추천 서비스 - 내부 시퀀스 다이어그램
+
+actor Client
+participant "추천 컨트롤러\n(RecommendController)" as Controller
+participant "추천 서비스\n(RecommendService)" as Service
+participant "지출분석 서비스\n(SpendingAnalyzer)" as Analyzer
+database "구독추천 DB" as RecommendDB
+
+' 지출 기반 추천 카테고리 조회
+Client -> Controller: GET /api/recommend/categories\n[지출 기반 추천 카테고리 조회]
+activate Controller
+
+Controller -> Service: getRecommendedCategory(userId)
+activate Service
+
+' 사용자 지출 패턴 분석
+Service -> Analyzer: analyzeSpending(spendings)
+activate Analyzer
+Analyzer -> RecommendDB: findSpendingsByUserIdAndDateAfter(userId, startDate)
+RecommendDB --> Analyzer: List<SpendingEntity>
+Analyzer -> Analyzer: calculateTotalByCategory()
+Analyzer -> Analyzer: findTopCategory()
+Analyzer --> Service: SpendingCategory
+deactivate Analyzer
+
+' 추천 카테고리 매핑
+Service -> RecommendDB: findBySpendingCategory(topSpendingCategory)
+RecommendDB --> Service: RecommendedCategory
+
+' 추천 결과 반환
+Service --> Controller: RecommendCategoryDTO
+Controller --> Client: HTTP Response\n(recommendCategory, spendingCategory, baseDate)
+
+deactivate Service
+deactivate Controller
+
+note right of Controller
+  1. 요청 파라미터 검증
+  2. 서비스 계층 호출
+  3. 응답 변환
+end note
+
+note right of Service
+  1. 지출 패턴 분석 요청
+  2. 추천 카테고리 매핑
+  3. 추천 결과 생성
+end note
+
+note right of Analyzer
+  1. 최근 1개월 지출 데이터 조회
+  2. 카테고리별 지출 합산
+  3. 최고 지출 카테고리 도출
+end note
