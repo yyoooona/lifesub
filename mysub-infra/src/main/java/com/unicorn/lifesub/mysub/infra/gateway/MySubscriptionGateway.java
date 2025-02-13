@@ -11,6 +11,7 @@ import com.unicorn.lifesub.mysub.infra.gateway.repository.MySubscriptionJpaRepos
 import com.unicorn.lifesub.mysub.infra.gateway.repository.SubscriptionJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +50,10 @@ public class MySubscriptionGateway implements MySubscriptionReader, MySubscripti
     }
 
     @Override
-    public void delete(Long id) {
-        mySubscriptionRepository.deleteById(id);
+    @Transactional
+    public void delete(Long subscriptionId) {
+        MySubscriptionEntity entity = mySubscriptionRepository.findBySubscription_Id(subscriptionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+        mySubscriptionRepository.delete(entity);
     }
 }

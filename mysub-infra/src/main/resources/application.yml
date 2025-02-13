@@ -22,7 +22,13 @@ spring:
 jwt:
   secret-key: ${JWT_SECRET_KEY:8O2HQ13etL2BWZvYOiWsJ5uWFoLi6NBUG8divYVoCgtHVvlk3dqRksMl16toztDUeBTSIuOOPvHIrYq11G2BwQ}
 
-allowed-origins: ${ALLOWED_ORIGINS:*}
+allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
+
+# 총구독료에 따른 구독서비스 사용 레벨 기준 금액
+fee:
+  level:
+    collector: ${FEE_LEVEL_COLLECTOR:50000}
+    addict: ${FEE_LEVEL_ADDICT:100000}
 
 springdoc:
   swagger-ui:

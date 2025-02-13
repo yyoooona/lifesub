@@ -25,7 +25,7 @@ jwt:
   access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:3600000}
   refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY:86400000}
 
-allowed-origins: ${ALLOWED_ORIGINS:*}
+allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
 
 springdoc:
   swagger-ui:

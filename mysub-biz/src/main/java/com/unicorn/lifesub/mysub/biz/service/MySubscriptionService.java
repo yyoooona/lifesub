@@ -9,6 +9,7 @@ import com.unicorn.lifesub.mysub.biz.usecase.out.*;
 import com.unicorn.lifesub.common.exception.BusinessException;
 import com.unicorn.lifesub.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,7 @@ public class MySubscriptionService implements
     public List<MySubResponse> getMySubscriptions(String userId) {
         return mySubscriptionReader.findByUserId(userId).stream()
                 .map(subscription -> MySubResponse.builder()
+                        .id(subscription.getSubscription().getId())
                         .serviceName(subscription.getSubscription().getName())
                         .logoUrl(subscription.getSubscription().getLogoUrl())
                         .build())
@@ -111,9 +113,13 @@ public class MySubscriptionService implements
                 .collect(Collectors.toList());
     }
 
+    @Value("${fee.level.collector}")
+    private long collectorThreshold;
+    @Value("${fee.level.addict}")
+    private long addictThreshold;
     private String calculateFeeLevel(long totalFee) {
-        if (totalFee < 100000) return FeeLevel.LIKFER.getFeeLevel();
-        if (totalFee < 200000) return FeeLevel.COLLECTOR.getFeeLevel();
+        if (totalFee < collectorThreshold) return FeeLevel.LIKFER.getFeeLevel();
+        if (totalFee < addictThreshold) return FeeLevel.COLLECTOR.getFeeLevel();
         return FeeLevel.ADDICT.getFeeLevel();
     }
 }
