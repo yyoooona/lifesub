@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.unicorn.lifesub.member.test.unit.config.jwt.CustomUserDetailsServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-02-14T07:50:21" hostname="ihaegyeong-ui-MacBookAir.local" time="1.069">
+  <properties/>
+  <testcase name="givenNonExistentUserId_whenLoadUser_thenThrowException" classname="com.unicorn.lifesub.member.test.unit.config.jwt.CustomUserDetailsServiceTest" time="0.864"/>
+  <testcase name="givenUserWithRoles_whenLoadUser_thenMapAuthoritiesCorrectly" classname="com.unicorn.lifesub.member.test.unit.config.jwt.CustomUserDetailsServiceTest" time="0.192"/>
+  <testcase name="givenExistingUserId_whenLoadUser_thenReturnUserDetails" classname="com.unicorn.lifesub.member.test.unit.config.jwt.CustomUserDetailsServiceTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
