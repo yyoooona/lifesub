@@ -25,7 +25,7 @@ import static org.mockito.BDDMockito.given;
  * Spring Security의 UserDetailsService 구현체 검증
  */
 @ExtendWith(MockitoExtension.class)
-class CustomUserDetailsServiceTest {
+class CustomUserDetailsServiceUnitTest {
 
     @InjectMocks
     private CustomUserDetailsService userDetailsService;

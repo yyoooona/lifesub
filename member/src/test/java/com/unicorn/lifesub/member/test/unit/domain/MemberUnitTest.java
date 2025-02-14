@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Member 도메인 객체 테스트 클래스
  * 도메인 객체의 생성 및 엔티티 변환 로직을 검증
  */
-class MemberTest {
+class MemberUnitTest {
 
     // 테스트용 상수 정의
     private static final String TEST_USER_ID = "testUser";

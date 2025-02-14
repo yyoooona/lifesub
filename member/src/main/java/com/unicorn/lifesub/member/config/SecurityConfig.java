@@ -1,8 +1,8 @@
 package com.unicorn.lifesub.member.config;
 
 import com.unicorn.lifesub.member.config.jwt.CustomUserDetailsService;
-import com.unicorn.lifesub.member.config.jwt.JwtTokenProvider;
 import com.unicorn.lifesub.member.config.jwt.JwtAuthenticationFilter;
+import com.unicorn.lifesub.member.config.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -80,8 +80,12 @@ configure(subprojects.findAll { !it.name.endsWith('-biz') && it.name != 'common'
         // Swagger
         implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
+        //-- spring security test
+        testImplementation 'org.springframework.security:spring-security-test'
+
         // Test Containers
         testImplementation 'org.testcontainers:postgresql'
+        testImplementation 'org.testcontainers:junit-jupiter'
 
         // WebFlux for WebMvc Testing
         implementation 'org.springframework.boot:spring-boot-starter-webflux'

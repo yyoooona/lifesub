@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
  * 주요 비즈니스 로직인 로그인/로그아웃 기능을 검증
  */
 @ExtendWith(MockitoExtension.class)
-class MemberServiceImplTest {
+class MemberServiceImplUnitTest {
 
     @InjectMocks
     private MemberServiceImpl memberService;

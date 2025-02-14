@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
  * JWT 토큰 제공자 테스트 클래스
  * 토큰 생성, 검증, 파싱 등의 기능을 검증
  */
-class JwtTokenProviderTest {
+class JwtTokenProviderUnitTest {
 
     private JwtTokenProvider jwtTokenProvider;
     private static final String SECRET_KEY = "test-secret-key";
