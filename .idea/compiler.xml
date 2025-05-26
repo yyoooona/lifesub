@@ -22,4 +22,26 @@
     </annotationProcessing>
     <bytecodeTargetLevel target="21" />
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="lifesub.common" options="-parameters" />
+      <module name="lifesub.common.main" options="-parameters" />
+      <module name="lifesub.common.test" options="-parameters" />
+      <module name="lifesub.member" options="-parameters" />
+      <module name="lifesub.member.main" options="-parameters" />
+      <module name="lifesub.member.test" options="-parameters" />
+      <module name="lifesub.mysub" options="-parameters" />
+      <module name="lifesub.mysub-biz" options="-parameters" />
+      <module name="lifesub.mysub-biz.main" options="-parameters" />
+      <module name="lifesub.mysub-biz.test" options="-parameters" />
+      <module name="lifesub.mysub-infra" options="-parameters" />
+      <module name="lifesub.mysub-infra.main" options="-parameters" />
+      <module name="lifesub.mysub-infra.test" options="-parameters" />
+      <module name="lifesub.mysub.main" options="-parameters" />
+      <module name="lifesub.mysub.test" options="-parameters" />
+      <module name="lifesub.recommend" options="-parameters" />
+      <module name="lifesub.recommend.main" options="-parameters" />
+      <module name="lifesub.recommend.test" options="-parameters" />
+    </option>
+  </component>
 </project>
