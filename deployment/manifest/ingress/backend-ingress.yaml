@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  namespace: dg0411-lifesub-ns
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: dg0411.20.249.184.228.nip.io
+    http:
+      paths:
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: member-service
+            port:
+              number: 80
+      - path: /api/mysub
+        pathType: Prefix
+        backend:
+          service:
+            name: mysub-service
+            port:
+              number: 80
+      - path: /api/recommend
+        pathType: Prefix
+        backend:
+          service:
+            name: recommend-service
+            port:
+              number: 80

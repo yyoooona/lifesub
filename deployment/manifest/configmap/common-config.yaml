@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-config
+  namespace: dg0411-lifesub-ns
+data:
+  ALLOWED_ORIGINS: "http://4.217.130.165"
+  JPA_DDL_AUTO: "update"
+  JPA_SHOW_SQL: "true"
+  FEE_LEVEL_COLLECTOR: "50000"
+  FEE_LEVEL_ADDICT: "100000"
