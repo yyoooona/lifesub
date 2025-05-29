@@ -52,39 +52,51 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./gradlew :member:sonar \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.projectKey=lifesub-member-dg0411 \
-            -Dsonar.projectName=lifesub-member-dg0411 \
-            -Dsonar.java.binaries=build/classes/java/main \
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
-            -Dsonar.exclusions=**/config/**,**/entity/**,**/dto/**,**/*Application.class,**/exception/**
+          if [ -n "${{ secrets.SONAR_HOST_URL }}" ] && [ -n "${{ secrets.SONAR_TOKEN }}" ]; then
+            ./gradlew :member:sonar \
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+              -Dsonar.projectKey=lifesub-member-dg0411 \
+              -Dsonar.projectName=lifesub-member-dg0411 \
+              -Dsonar.java.binaries=build/classes/java/main \
+              -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
+              -Dsonar.exclusions=**/config/**,**/entity/**,**/dto/**,**/*Application.class,**/exception/**
+          else
+            echo "SonarQube secrets not configured - skipping analysis"
+          fi
 
       - name: SonarQube Analysis - MySub Service
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./gradlew :mysub-infra:sonar \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.projectKey=lifesub-mysub-dg0411 \
-            -Dsonar.projectName=lifesub-mysub-dg0411 \
-            -Dsonar.java.binaries=build/classes/java/main \
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
-            -Dsonar.exclusions=**/config/**,**/entity/**,**/dto/**,**/*Application.class,**/exception/**
+          if [ -n "${{ secrets.SONAR_HOST_URL }}" ] && [ -n "${{ secrets.SONAR_TOKEN }}" ]; then
+            ./gradlew :mysub-infra:sonar \
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+              -Dsonar.projectKey=lifesub-mysub-dg0411 \
+              -Dsonar.projectName=lifesub-mysub-dg0411 \
+              -Dsonar.java.binaries=build/classes/java/main \
+              -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
+              -Dsonar.exclusions=**/config/**,**/entity/**,**/dto/**,**/*Application.class,**/exception/**
+          else
+            echo "SonarQube secrets not configured - skipping analysis"
+          fi
 
       - name: SonarQube Analysis - Recommend Service
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./gradlew :recommend:sonar \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.projectKey=lifesub-recommend-dg0411 \
-            -Dsonar.projectName=lifesub-recommend-dg0411 \
-            -Dsonar.java.binaries=build/classes/java/main \
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
-            -Dsonar.exclusions=**/config/**,**/entity/**,**/dto/**,**/*Application.class,**/exception/**
+          if [ -n "${{ secrets.SONAR_HOST_URL }}" ] && [ -n "${{ secrets.SONAR_TOKEN }}" ]; then
+            ./gradlew :recommend:sonar \
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+              -Dsonar.projectKey=lifesub-recommend-dg0411 \
+              -Dsonar.projectName=lifesub-recommend-dg0411 \
+              -Dsonar.java.binaries=build/classes/java/main \
+              -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
+              -Dsonar.exclusions=**/config/**,**/entity/**,**/dto/**,**/*Application.class,**/exception/**
+          else
+            echo "SonarQube secrets not configured - skipping analysis"
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
