@@ -77,13 +77,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Read deployment environment variables
+      - name: Read deployment environment variables (개선된 버전)
         run: |
-          while IFS= read -r line || [ -n "$line" ]; do
-            if [[ ! "$line" =~ ^# ]] && [[ "$line" =~ = ]]; then
-              echo "$line" >> $GITHUB_ENV
+          # Windows 스타일 줄바꿈 제거하고 환경변수 읽기
+          sed 's/\r$//' deployment/deploy_env_vars | while IFS='=' read -r key value; do
+            # 주석과 빈 줄 제외
+            if [[ ! "$key" =~ ^#.* ]] && [[ -n "$key" ]] && [[ -n "$value" ]]; then
+              # 공백 제거하고 환경변수 설정
+              clean_key=$(echo "$key" | tr -d '[:space:]')
+              clean_value=$(echo "$value" | tr -d '\r\n')
+              echo "$clean_key=$clean_value" >> $GITHUB_ENV
+              echo "Set: $clean_key=$clean_value"
             fi
-          done < deployment/deploy_env_vars
+          done
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -98,6 +104,16 @@ jobs:
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "Generated image tag: $IMAGE_TAG"
 
+      - name: Debug environment variables
+        run: |
+          echo "=== Environment Variables Debug ==="
+          echo "registry: [${{ env.registry }}]"
+          echo "image_org: [${{ env.image_org }}]"
+          echo "IMAGE_TAG: [$IMAGE_TAG]"
+          echo "registry length: ${#registry}"
+          echo "image_org length: ${#image_org}"
+          echo "===================================="
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -111,35 +127,65 @@ jobs:
       - name: Build and push member service image
         run: |
           echo "Building member service image..."
+          
+          # 환경변수 정리
+          CLEAN_REGISTRY=$(echo "${{ env.registry }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_ORG=$(echo "${{ env.image_org }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_TAG=$(echo "$IMAGE_TAG" | tr -d '\r\n[:space:]')
+          
+          IMAGE_NAME="${CLEAN_REGISTRY}/${CLEAN_IMAGE_ORG}/member:${CLEAN_IMAGE_TAG}"
+          echo "Full image name: $IMAGE_NAME"
+          
           docker build \
             --build-arg BUILD_LIB_DIR="member/build/libs" \
             --build-arg ARTIFACTORY_FILE="member.jar" \
             -f deployment/container/Dockerfile \
-            -t ${{ env.registry }}/${{ env.image_org }}/member:${{ env.IMAGE_TAG }} .
-          docker push ${{ env.registry }}/${{ env.image_org }}/member:${{ env.IMAGE_TAG }}
-          echo "Successfully pushed member:${{ env.IMAGE_TAG }}"
+            -t "$IMAGE_NAME" .
+          
+          docker push "$IMAGE_NAME"
+          echo "Successfully pushed member:$CLEAN_IMAGE_TAG"
 
       - name: Build and push mysub service image
         run: |
           echo "Building mysub service image..."
+          
+          # 환경변수 정리
+          CLEAN_REGISTRY=$(echo "${{ env.registry }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_ORG=$(echo "${{ env.image_org }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_TAG=$(echo "$IMAGE_TAG" | tr -d '\r\n[:space:]')
+          
+          IMAGE_NAME="${CLEAN_REGISTRY}/${CLEAN_IMAGE_ORG}/mysub:${CLEAN_IMAGE_TAG}"
+          echo "Full image name: $IMAGE_NAME"
+          
           docker build \
             --build-arg BUILD_LIB_DIR="mysub-infra/build/libs" \
             --build-arg ARTIFACTORY_FILE="mysub.jar" \
             -f deployment/container/Dockerfile \
-            -t ${{ env.registry }}/${{ env.image_org }}/mysub:${{ env.IMAGE_TAG }} .
-          docker push ${{ env.registry }}/${{ env.image_org }}/mysub:${{ env.IMAGE_TAG }}
-          echo "Successfully pushed mysub:${{ env.IMAGE_TAG }}"
+            -t "$IMAGE_NAME" .
+          
+          docker push "$IMAGE_NAME"
+          echo "Successfully pushed mysub:$CLEAN_IMAGE_TAG"
 
       - name: Build and push recommend service image
         run: |
           echo "Building recommend service image..."
+          
+          # 환경변수 정리
+          CLEAN_REGISTRY=$(echo "${{ env.registry }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_ORG=$(echo "${{ env.image_org }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_TAG=$(echo "$IMAGE_TAG" | tr -d '\r\n[:space:]')
+          
+          IMAGE_NAME="${CLEAN_REGISTRY}/${CLEAN_IMAGE_ORG}/recommend:${CLEAN_IMAGE_TAG}"
+          echo "Full image name: $IMAGE_NAME"
+          
           docker build \
             --build-arg BUILD_LIB_DIR="recommend/build/libs" \
             --build-arg ARTIFACTORY_FILE="recommend.jar" \
             -f deployment/container/Dockerfile \
-            -t ${{ env.registry }}/${{ env.image_org }}/recommend:${{ env.IMAGE_TAG }} .
-          docker push ${{ env.registry }}/${{ env.image_org }}/recommend:${{ env.IMAGE_TAG }}
-          echo "Successfully pushed recommend:${{ env.IMAGE_TAG }}"
+            -t "$IMAGE_NAME" .
+          
+          docker push "$IMAGE_NAME"
+          echo "Successfully pushed recommend:$CLEAN_IMAGE_TAG"
 
   deploy:
     name: Deploy to Kubernetes
@@ -150,19 +196,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Read deployment environment variables
+      - name: Read deployment environment variables (개선된 버전)
         run: |
-          while IFS= read -r line || [ -n "$line" ]; do
-            if [[ ! "$line" =~ ^# ]] && [[ "$line" =~ = ]]; then
-              echo "$line" >> $GITHUB_ENV
+          # Windows 스타일 줄바꿈 제거하고 환경변수 읽기
+          sed 's/\r$//' deployment/deploy_env_vars | while IFS='=' read -r key value; do
+            # 주석과 빈 줄 제외
+            if [[ ! "$key" =~ ^#.* ]] && [[ -n "$key" ]] && [[ -n "$value" ]]; then
+              # 공백 제거하고 환경변수 설정
+              clean_key=$(echo "$key" | tr -d '[:space:]')
+              clean_value=$(echo "$value" | tr -d '\r\n')
+              echo "$clean_key=$clean_value" >> $GITHUB_ENV
             fi
-          done < deployment/deploy_env_vars
+          done
 
       - name: Set image tag from previous job
         run: |
           echo "IMAGE_TAG=${{ needs.release.outputs.image-tag }}" >> $GITHUB_ENV
 
-      - name: Azure Login
+      - name: Azure Login  
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -180,57 +231,42 @@ jobs:
 
       - name: Generate Kubernetes manifest
         run: |
-          export namespace=${{ env.namespace }}
-          export allowed_origins=${{ env.allowed_origins }}
-          export ingress_host=${{ env.ingress_host }}
-          export jwt_secret_key=${{ env.jwt_secret_key }}
-          export postgres_user=${{ env.postgres_user }}
-          export postgres_password=${{ env.postgres_password }}
-          export replicas=${{ env.replicas }}
-          export resources_requests_cpu=${{ env.resources_requests_cpu }}
-          export resources_requests_memory=${{ env.resources_requests_memory }}
-          export resources_limits_cpu=${{ env.resources_limits_cpu }}
-          export resources_limits_memory=${{ env.resources_limits_memory }}
-          export member_image_path=${{ env.registry }}/${{ env.image_org }}/member:${{ env.IMAGE_TAG }}
-          export mysub_image_path=${{ env.registry }}/${{ env.image_org }}/mysub:${{ env.IMAGE_TAG }}
-          export recommend_image_path=${{ env.registry }}/${{ env.image_org }}/recommend:${{ env.IMAGE_TAG }}
+          # 환경변수 정리 후 export
+          export namespace=$(echo "${{ env.namespace }}" | tr -d '\r\n[:space:]')
+          export allowed_origins=$(echo "${{ env.allowed_origins }}" | tr -d '\r\n[:space:]')
+          export ingress_host=$(echo "${{ env.ingress_host }}" | tr -d '\r\n[:space:]')
+          export jwt_secret_key=$(echo "${{ env.jwt_secret_key }}" | tr -d '\r\n[:space:]')
+          export postgres_user=$(echo "${{ env.postgres_user }}" | tr -d '\r\n[:space:]')
+          export postgres_password=$(echo "${{ env.postgres_password }}" | tr -d '\r\n[:space:]')
+          export replicas=$(echo "${{ env.replicas }}" | tr -d '\r\n[:space:]')
+          export resources_requests_cpu=$(echo "${{ env.resources_requests_cpu }}" | tr -d '\r\n[:space:]')
+          export resources_requests_memory=$(echo "${{ env.resources_requests_memory }}" | tr -d '\r\n[:space:]')
+          export resources_limits_cpu=$(echo "${{ env.resources_limits_cpu }}" | tr -d '\r\n[:space:]')
+          export resources_limits_memory=$(echo "${{ env.resources_limits_memory }}" | tr -d '\r\n[:space:]')
           
+          # 이미지 경로도 정리
+          CLEAN_REGISTRY=$(echo "${{ env.registry }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_ORG=$(echo "${{ env.image_org }}" | tr -d '\r\n[:space:]')
+          CLEAN_IMAGE_TAG=$(echo "${{ env.IMAGE_TAG }}" | tr -d '\r\n[:space:]')
+          
+          export member_image_path="${CLEAN_REGISTRY}/${CLEAN_IMAGE_ORG}/member:${CLEAN_IMAGE_TAG}"
+          export mysub_image_path="${CLEAN_REGISTRY}/${CLEAN_IMAGE_ORG}/mysub:${CLEAN_IMAGE_TAG}"
+          export recommend_image_path="${CLEAN_REGISTRY}/${CLEAN_IMAGE_ORG}/recommend:${CLEAN_IMAGE_TAG}"
+          
+          # manifest 생성
           envsubst < deployment/deploy.yaml.template > deployment/deploy.yaml
-
-      - name: Debug - Show generated manifest
-        run: |
-          echo "Generated manifest content:"
-          cat deployment/deploy.yaml
 
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f deployment/deploy.yaml
-
-      - name: Wait for deployments to be ready
-        run: |
-          echo "Waiting for deployments to be ready..."
           kubectl -n ${{ env.namespace }} wait --for=condition=available deployment/member --timeout=300s
           kubectl -n ${{ env.namespace }} wait --for=condition=available deployment/mysub --timeout=300s
           kubectl -n ${{ env.namespace }} wait --for=condition=available deployment/recommend --timeout=300s
-
-      - name: Verify deployment
-        run: |
-          echo "Checking pod status..."
-          kubectl -n ${{ env.namespace }} get pods
-          
-          echo "Checking service status..."
-          kubectl -n ${{ env.namespace }} get svc
-          
-          echo "Checking ingress status..."
-          kubectl -n ${{ env.namespace }} get ingress
 
       - name: Display deployment status
         run: |
           echo "========================================="
           echo "Backend services deployment completed!"
-          echo "Member Service: Ready"
-          echo "MySub Service: Ready"
-          echo "Recommend Service: Ready"
           echo "Ingress Host: ${{ env.ingress_host }}"
           echo "Image Tag: ${{ env.IMAGE_TAG }}"
           echo "========================================="
