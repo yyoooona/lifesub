@@ -40,11 +40,10 @@ public class SecurityConfig {
             swagger페이지와 로그인, 회원등록 페이지는 인증 안해도 접근하도록 설정함
     - sessionManagement: 세션을 로컬에 저장하지 않도록 함
     */
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors
+               .cors(cors -> cors
                         .configurationSource(corsConfigurationSource())
                 )
                 .csrf(AbstractHttpConfigurer::disable)
