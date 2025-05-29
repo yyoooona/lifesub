@@ -129,31 +129,55 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Wait for SonarQube Quality Gate - Member
-        uses: sonarqube-quality-gate-action@master
+        uses: sonarqube-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          scanMetadataReportFile: member/.scannerwork/report-task.txt
-        continue-on-error: false
 
-      - name: Wait for SonarQube Quality Gate - MySub
-        uses: sonarqube-quality-gate-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          scanMetadataReportFile: mysub-infra/.scannerwork/report-task.txt
-        continue-on-error: false
+      - name: Check Quality Gate Result - Member
+        run: |
+          # SonarQube API를 통해 Quality Gate 상태 확인
+          PROJECT_KEY="lifesub-member-dg0411"
+          QUALITY_GATE_STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+            "${{ secrets.SONAR_HOST_URL }}/api/qualitygates/project_status?projectKey=${PROJECT_KEY}" | \
+            jq -r '.projectStatus.status')
+          
+          echo "Member Service Quality Gate Status: $QUALITY_GATE_STATUS"
+          
+          if [ "$QUALITY_GATE_STATUS" != "OK" ]; then
+            echo "Quality Gate failed for Member service"
+            exit 1
+          fi
 
-      - name: Wait for SonarQube Quality Gate - Recommend
-        uses: sonarqube-quality-gate-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          scanMetadataReportFile: recommend/.scannerwork/report-task.txt
-        continue-on-error: false
+      - name: Check Quality Gate Result - MySub
+        run: |
+          # SonarQube API를 통해 Quality Gate 상태 확인
+          PROJECT_KEY="lifesub-mysub-dg0411"
+          QUALITY_GATE_STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+            "${{ secrets.SONAR_HOST_URL }}/api/qualitygates/project_status?projectKey=${PROJECT_KEY}" | \
+            jq -r '.projectStatus.status')
+          
+          echo "MySub Service Quality Gate Status: $QUALITY_GATE_STATUS"
+          
+          if [ "$QUALITY_GATE_STATUS" != "OK" ]; then
+            echo "Quality Gate failed for MySub service"
+            exit 1
+          fi
+
+      - name: Check Quality Gate Result - Recommend
+        run: |
+          # SonarQube API를 통해 Quality Gate 상태 확인
+          PROJECT_KEY="lifesub-recommend-dg0411"
+          QUALITY_GATE_STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+            "${{ secrets.SONAR_HOST_URL }}/api/qualitygates/project_status?projectKey=${PROJECT_KEY}" | \
+            jq -r '.projectStatus.status')
+          
+          echo "Recommend Service Quality Gate Status: $QUALITY_GATE_STATUS"
+          
+          if [ "$QUALITY_GATE_STATUS" != "OK" ]; then
+            echo "Quality Gate failed for Recommend service"
+            exit 1
+          fi
 
   release:
     name: Build and Push Docker Images
